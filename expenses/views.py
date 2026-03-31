@@ -11,10 +11,28 @@ from .forms import ExpenseForm
 @login_required
 def expense_list(request):
     expenses = Expense.objects.filter(user=request.user)
+
+    # Get filter values from GET parameters
+    selected_category = request.GET.get('category', '')
+    selected_month = request.GET.get('month', '')
+
+    # Apply category filter
+    if selected_category:
+        expenses = expenses.filter(category=selected_category)
+
+    # Apply month filter (format: YYYY-MM)
+    if selected_month:
+        year, month = selected_month.split('-')
+        expenses = expenses.filter(date__year=year, date__month=month)
+
     total = sum(e.amount for e in expenses)
+
     context = {
         'expenses': expenses,
         'total': total,
+        'selected_category': selected_category,
+        'selected_month': selected_month,
+        'categories': Expense.CATEGORY_CHOICES,
     }
     return render(request, 'expenses/expense_list.html', context)
 
