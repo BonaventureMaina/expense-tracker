@@ -6,6 +6,7 @@ from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .models import Expense
 from .forms import ExpenseForm
+from django.db.models import Sum
 
 
 @login_required
@@ -27,12 +28,26 @@ def expense_list(request):
 
     total = sum(e.amount for e in expenses)
 
+    # Category summary — group by category and sum amounts
+    category_totals = (
+        expenses
+        .values('category')
+        .annotate(total=Sum('amount'))
+        .order_by('-total')
+    )
+
+    # Add human-readable label to each category total
+    category_display = dict(Expense.CATEGORY_CHOICES)
+    for item in category_totals:
+        item['label'] = category_display.get(item['category'], item['category'])
+
     context = {
         'expenses': expenses,
         'total': total,
         'selected_category': selected_category,
         'selected_month': selected_month,
         'categories': Expense.CATEGORY_CHOICES,
+        'category_totals': category_totals,
     }
     return render(request, 'expenses/expense_list.html', context)
 

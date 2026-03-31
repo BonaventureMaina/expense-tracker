@@ -8,6 +8,21 @@
     <a href="{% url 'expense_create' %}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm">+ Add Expense</a>
 </div>
 
+<!-- Category Summary -->
+{% if category_totals %}
+<div class="bg-white rounded shadow p-4 mb-6">
+    <h3 class="text-sm font-semibold text-gray-600 uppercase mb-3">Breakdown by Category</h3>
+    <div class="flex flex-wrap gap-3">
+        {% for item in category_totals %}
+        <div class="bg-indigo-50 rounded px-4 py-2 text-sm">
+            <span class="text-gray-600">{{ item.label }}</span>
+            <span class="font-bold text-indigo-700 ml-2">KES {{ item.total }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <!-- Filters -->
 <form method="get" class="bg-white rounded shadow p-4 mb-6 flex flex-wrap gap-4 items-end">
     <div>
